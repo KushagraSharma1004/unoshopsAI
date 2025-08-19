@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Omnis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ──────────────────────── VARIABLES ──────────────────────── */
+    :root {
+      --bg: #191923;
+      --panel: #21212B;
+      --primary: #007BFF;
+      --secondary: #EAE0A4;
+      --text: #E0E0E0;
+      --muted: #999999;
+    }
+
+    /* ──────────────────────── GLOBAL RESET ──────────────────────── */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      /* Updated font family */
+      font-family: 'Inter', sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ──────────────────────── HEADER ──────────────────────── */
+    header {
+      background: var(--panel);
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    header h1 {
+      /* Updated font family for the title */
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      color: var(--secondary);
+    }
+
+    /* ──────────────────────── BOTTOM NAVIGATION ──────────────────────── */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: var(--panel);
+      padding: 0.75rem 1rem;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 1000;
+    }
+
+    nav button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      padding: 0.6rem 0.5rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    nav button svg {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 4px;
+      fill: currentColor;
+    }
+
+    nav button.active {
+      background: var(--primary);
+      color: #fff;
+      transform: translateY(-5px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    nav button:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* ──────────────────────── MAIN / PANELS ──────────────────────── */
+    main {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 0 1rem;
+      padding-bottom: 80px;
+      /* Add space for the nav bar */
+    }
+
+    section {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      padding: 1rem;
+      gap: 0.8rem;
+      background: var(--panel);
+      border-radius: 12px;
+      margin: 1rem 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    section.active {
+      display: flex;
+    }
+
+    /* INPUTS – thumb-friendly */
+    textarea,
+    input {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      background: #31313c;
+      border: none;
+      border-radius: 12px;
+      color: var(--text);
+      outline: none;
+      resize: vertical;
+      min-height: 50px;
+    }
+
+    textarea::placeholder,
+    input::placeholder {
+      color: var(--muted);
+    }
+
+    button.send {
+      align-self: flex-end;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease-in-out;
+    }
+
+    button.send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    button.send:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* LOADER (CSS spinner) */
+    .loader {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #fff;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+
+    /* ──────────────────────── CHAT ──────────────────────── */
+    #chat-log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      margin: 0.6rem 0;
+      max-width: 90%;
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+      word-break: break-word;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .user {
+      background: var(--primary);
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .assistant {
+      background: #31313c;
+      border-bottom-left-radius: 4px;
+    }
+
+    #chat-log::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #chat-log::-webkit-scrollbar-thumb {
+      background: var(--muted);
+      border-radius: 3px;
+    }
+
+    /* ─── Animation for new messages ─── */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animated {
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    /* ──────────────────────── IMAGE ──────────────────────── */
+    #image-output {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.8rem;
+      overflow-y: auto;
+      align-content: flex-start;
+    }
+
+    #image-output img {
+      width: calc(50% - 0.4rem);
+      height: auto;
+      border-radius: 8px;
+      object-fit: cover;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ──────────────────────── FOOTER ──────────────────────── */
+    footer {
+      background: var(--panel);
+      text-align: center;
+      padding: 0.8rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ──────────────────────── RESPONSIVE ──────────────────────── */
+    @media (min-width: 600px) {
+      body {
+        padding: 0 1rem;
+      }
+
+      nav {
+        position: static;
+        transform: none;
+        width: auto;
+        max-width: none;
+        background: transparent;
+        box-shadow: none;
+        padding: 0.6rem 1rem;
+      }
+
+      nav button {
+        flex-direction: row;
+        gap: 0.5rem;
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+      }
+
+      nav button svg {
+        margin-bottom: 0;
+      }
+
+      main {
+        flex-direction: row;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-bottom: 0;
+      }
+
+      section {
+        margin: 1.5rem 0.75rem;
+      }
+
+      #chat,
+      #image,
+      #summarise,
+      #code {
+        flex-basis: 50%;
+      }
+
+      #chat-log,
+      #image-output {
+        padding: 1rem;
+      }
+
+      #image-output img {
+        width: calc(33.333% - 0.5rem);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>✨ Omnis</h1>
+  </header>
+
+  <main>
+    <section id="chat" class="active">
+      <div id="chat-log"></div>
+      <textarea id="chat-input" rows="2" placeholder="Ask anything…"></textarea>
+      <button class="send" id="chat-send">Send</button>
+    </section>
+
+    <section id="image">
+      <input id="img-prompt" type="text" placeholder="Describe the picture you want…">
+      <button class="send" id="img-generate">Generate</button>
+      <div id="image-output"></div>
+    </section>
+
+    <section id="summarise">
+      <textarea id="sum-text" rows="6" placeholder="Paste text you’d like summarised…"></textarea>
+      <button class="send" id="sum-go">Summarise</button>
+      <div id="sum-result" style="margin-top:1rem;padding:.8rem;background:#31313c;border-radius:12px;"></div>
+    </section>
+
+    <section id="code">
+      <textarea id="code-prompt" rows="5" placeholder="Explain / fix / write code…"></textarea>
+      <button class="send" id="code-go">Ask Omnis</button>
+      <pre id="code-result"
+        style="margin-top:1rem;padding:.8rem;background:#31313c;border-radius:12px;overflow:auto;"></pre>
+    </section>
+  </main>
+
+  <nav>
+    <button class="active" data-panel="chat">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+      </svg>
+      Chat
+    </button>
+    <!-- <button data-panel="image">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2zm-2 0l-6-6-4 4-2-2-6 6V4h16z"/></svg>
+    Image
+  </button> -->
+    <button data-panel="summarise">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path
+          d="M14 17H7c-.55 0-1-.45-1-1s.45-1 1-1h7c.55 0 1 .45 1 1s-.45 1-1 1zm3-4H7c-.55 0-1-.45-1-1s.45-1 1-1h10c.55 0 1 .45 1 1s-.45 1-1 1zm0-4H7c-.55 0-1-.45-1-1s.45-1 1-1h10c.55 0 1 .45 1 1s-.45 1-1 1zM20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+      </svg>
+      Summarise
+    </button>
+    <button data-panel="code">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+      </svg>
+      Code
+    </button>
+  </nav>
+
+  <footer>
+    Made with wishes for <span style='text-decoration: underline;'>Reena mam</span>
+  </footer>
+
+  <script>
+    /* --------------------------------------------------------------
+       1️⃣ CONFIG – put your Omnis API key here
+       -------------------------------------------------------------- */
+    const Omnis_API_KEY = "AIzaSyDxZHJ7NXQ8AJijBqZ7gVohSHlqb1QZiq0";   // <<<‑‑ CHANGE THIS
+    const Omnis_BASE = "https://generativelanguage.googleapis.com/v1";
+
+    /* --------------------------------------------------------------
+       2️⃣ Tiny DOM helpers
+       -------------------------------------------------------------- */
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    /* --------------------------------------------------------------
+       3️⃣ PANEL SWITCHING
+       -------------------------------------------------------------- */
+    $$('nav button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        $$('nav button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const panel = btn.dataset.panel;
+        $$('main section').forEach(s => s.classList.remove('active'));
+        $(`#${panel}`).classList.add('active');
+      });
+    });
+
+    /* --------------------------------------------------------------
+       4️⃣ Add a chat bubble
+       -------------------------------------------------------------- */
+    function addChatMessage(txt, role) {
+      const el = document.createElement('div');
+      el.className = `message ${role} animated`; // Add 'animated' class
+      el.textContent = txt;
+      $('#chat-log').appendChild(el);
+      $('#chat-log').scrollTop = $('#chat-log').scrollHeight;
+    }
+
+    /* --------------------------------------------------------------
+       5️⃣ Text generation – Omnis‑1.5‑pro (or any model you prefer)
+       -------------------------------------------------------------- */
+    async function OmnisText(prompt) {
+      const url = `${Omnis_BASE}/models/gemini-1.5-pro:generateContent?key=${Omnis_API_KEY}`;
+      const body = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(`API ${resp.status}: ${txt}`);
+      }
+      const data = await resp.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "No reply";
+    }
+
+    /* --------------------------------------------------------------
+       6️⃣ CHAT UI
+       -------------------------------------------------------------- */
+    $('#chat-send').addEventListener('click', async () => {
+      const txt = $('#chat-input').value.trim();
+      if (!txt) return;
+      $('#chat-input').value = "";
+      addChatMessage(txt, 'user');
+      toggleButton('#chat-send', true);
+      try {
+        const reply = await OmnisText(txt);
+        addChatMessage(reply, 'assistant');
+      } catch (e) {
+        addChatMessage(`❗ ${e.message}`, 'assistant');
+      }
+      toggleButton('#chat-send', false);
+    });
+    $('#chat-input').addEventListener('keydown', e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        $('#chat-send').click();
+      }
+    });
+
+    /* --------------------------------------------------------------
+       7️⃣ IMAGE GENERATION
+       -------------------------------------------------------------- */
+    $('#img-generate').addEventListener('click', async () => {
+      const prompt = $('#img-prompt').value.trim();
+      if (!prompt) return;
+      toggleButton('#img-generate', true);
+      $('#image-output').innerHTML = '<em>Generating…</em>';
+
+      try {
+        const urls = await OmnisImage(prompt);
+        $('#image-output').innerHTML = "";
+        urls.forEach(src => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = prompt;
+          $('#image-output').appendChild(img);
+        });
+      } catch (e) {
+        $('#image-output').innerHTML = `<span style="color:#ff7777;">❗ ${e.message}</span>`;
+      }
+      toggleButton('#img-generate', false);
+    });
+
+    /* Image‑generation request – note the response shape */
+    async function OmnisImage(prompt) {
+      const url = `${Omnis_BASE}/models/imagegenerator:generateContent?key=${Omnis_API_KEY}`;
+      const body = {
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "image/png" }
+      };
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(`API ${resp.status}: ${txt}`);
+      }
+      const data = await resp.json();
+
+      /* ─── The image can be in two possible places ─── */
+      const part = data.candidates?.[0]?.content?.parts?.[0];
+      // Newer shape: part.blob?.data  (base‑64 string)
+      const b64 = part?.blob?.data
+        // Older fallback (sometimes just plain text)
+        || part?.text;
+
+      if (!b64) throw new Error("No image data returned");
+      return [`data:image/png;base64,${b64}`];
+    }
+
+    /* --------------------------------------------------------------
+       8️⃣ SUMMARISE
+       -------------------------------------------------------------- */
+    $('#sum-go').addEventListener('click', async () => {
+      const txt = $('#sum-text').value.trim();
+      if (!txt) return;
+      toggleButton('#sum-go', true);
+      $('#sum-result').textContent = "Summarising…";
+      try {
+        const out = await OmnisText(`Summarise the following text in 3‑4 sentences:\n\n${txt}`);
+        $('#sum-result').textContent = out;
+      } catch (e) {
+        $('#sum-result').textContent = `❗ ${e.message}`;
+      }
+      toggleButton('#sum-go', false);
+    });
+
+    /* --------------------------------------------------------------
+       9️⃣ CODE‑HELPER
+       -------------------------------------------------------------- */
+    $('#code-go').addEventListener('click', async () => {
+      const txt = $('#code-prompt').value.trim();
+      if (!txt) return;
+      toggleButton('#code-go', true);
+      $('#code-result').textContent = "Thinking…";
+      try {
+        const out = await OmnisText(`You are a helpful coding assistant. ${txt}`);
+        $('#code-result').textContent = out;
+      } catch (e) {
+        $('#code-result').textContent = `❗ ${e.message}`;
+      }
+      toggleButton('#code-go', false);
+    });
+
+    /* --------------------------------------------------------------
+       10️⃣ Utility – toggle a button + optional spinner
+       -------------------------------------------------------------- */
+    function toggleButton(selector, busy) {
+      const btn = $(selector);
+      btn.disabled = busy;
+      if (busy) {
+        // add a spinner inside the button (keeps text)
+        if (!btn.querySelector('.loader')) {
+          const sp = document.createElement('span');
+          sp.className = 'loader';
+          btn.prepend(sp);
+        }
+      } else {
+        const sp = btn.querySelector('.loader');
+        if (sp) sp.remove();
+      }
+    }
+
+    /* --------------------------------------------------------------
+       11️⃣ OPTIONAL – list models you have access to (run in console)
+       --------------------------------------------------------------
+       fetch(`${Omnis_BASE}/models?key=${Omnis_API_KEY}`)
+         .then(r=>r.json())
+         .then(d=>console.log(d));
+       ----------------------------------------------------------------- */
+  </script>
+</body>
+
+</html>
