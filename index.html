@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zenith AI - Modern AI Assistant</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+        
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
@@ -77,25 +76,11 @@
         }
 
         @keyframes float {
-            0% {
-                transform: translateY(0px) translateX(0px);
-            }
-
-            25% {
-                transform: translateY(-10px) translateX(5px);
-            }
-
-            50% {
-                transform: translateY(0px) translateX(10px);
-            }
-
-            75% {
-                transform: translateY(-5px) translateX(5px);
-            }
-
-            100% {
-                transform: translateY(0px) translateX(0px);
-            }
+            0% { transform: translateY(0px) translateX(0px); }
+            25% { transform: translateY(-10px) translateX(5px); }
+            50% { transform: translateY(0px) translateX(10px); }
+            75% { transform: translateY(-5px) translateX(5px); }
+            100% { transform: translateY(0px) translateX(0px); }
         }
 
         .header h1 {
@@ -140,17 +125,8 @@
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.7;
-                transform: scale(0.95);
-            }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.95); }
         }
 
         .model-info {
@@ -263,7 +239,6 @@
                 opacity: 0;
                 transform: translateY(1rem);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -348,23 +323,14 @@
             animation: typing 1.4s infinite;
         }
 
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes typing {
-
-            0%,
-            60%,
-            100% {
+            0%, 60%, 100% {
                 transform: translateY(0);
                 opacity: 0.5;
             }
-
             30% {
                 transform: translateY(-0.5rem);
                 opacity: 1;
@@ -777,7 +743,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="app-container">
         <!-- Header -->
@@ -820,14 +785,12 @@
                             <div class="message-avatar">Z</div>
                             <div class="message-content">
                                 <div class="message-bubble">
-                                    🚀 Welcome to Zenith AI! I'm powered by Kushagra Sharma with up-to-date knowledge
-                                    through 2024. I can help you with coding, analysis, creative writing, and much more.
-                                    What would you like to explore today?
+                                    🚀 Welcome to Zenith AI! I'm powered by Kushagra Sharma with up-to-date knowledge through 2024. I can help you with coding, analysis, creative writing, and much more. What would you like to explore today?
                                 </div>
                             </div>
                         </div>
                     </div>
-
+                    
                     <div class="typing-indicator" id="typingIndicator">
                         <div class="typing-bubble">
                             <div class="typing-dot"></div>
@@ -1123,7 +1086,12 @@
                 <div class="quick-btn" onclick="quickPrompt('Code review:')">💻 Review</div>
             </div>
             <div class="input-wrapper">
-                <textarea id="messageInput" class="message-input" placeholder="Ask me anything..." rows="1"></textarea>
+                <textarea 
+                    id="messageInput" 
+                    class="message-input" 
+                    placeholder="Ask me anything..."
+                    rows="1"
+                ></textarea>
                 <button class="send-btn" onclick="sendMessage()" id="sendButton">
                     →
                 </button>
@@ -1149,7 +1117,7 @@
         const API_KEY = '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';
         const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
         const MODEL = 'nvidia/nemotron-nano-9b-v2:free'; // Latest model with 2024 knowledge
-
+        
         // State
         let conversation = [];
         let currentMode = null;
@@ -1163,7 +1131,7 @@
         };
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
             setupEventListeners();
             loadSettings();
@@ -1173,7 +1141,7 @@
         function initializeApp() {
             // Auto-resize textarea
             const textarea = document.getElementById('messageInput');
-            textarea.addEventListener('input', function () {
+            textarea.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 96) + 'px';
             });
@@ -1214,7 +1182,7 @@
             });
 
             // Message input
-            document.getElementById('messageInput').addEventListener('keydown', function (e) {
+            document.getElementById('messageInput').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
@@ -1239,7 +1207,7 @@
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
-
+            
             if (!message) return;
 
             // Clear input and add user message
@@ -1278,53 +1246,47 @@
         }
 
         async function callAI(message, systemPrompt = null) {
-            try {
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`,
-                        'HTTP-Referer': window.location.href, // Add this
-                        'X-Title': 'Zenith AI' // Add this
-                    },
-                    body: JSON.stringify({
-                        model: MODEL,
-                        messages: [
-                            {
-                                role: 'system',
-                                content: systemPrompt || basePrompt
-                            },
-                            ...(settings.memory ? conversation.slice(-10) : []),
-                            {
-                                role: 'user',
-                                content: message
-                            }
-                        ],
-                        max_tokens: 2000,
-                        temperature: settings.creative ? 0.9 : 0.7
-                    })
-                });
+            const basePrompt = `You are Zenith AI, an advanced AI assistant powered by Kushagra Sharma of class 9th A with knowledge updated through 2024. You are helpful, accurate, and provide current information. You can assist with coding using 2024 best practices, current technology trends, and up-to-date information across all domains.
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    if (response.status === 401) {
-                        throw new Error('Invalid API key. Please check your OpenRouter API key.');
-                    } else if (response.status === 429) {
-                        throw new Error('Rate limit exceeded. Please try again later.');
-                    } else {
-                        throw new Error(errorData.error?.message || `API Error: ${response.status}`);
-                    }
-                }
+Settings: Creative=${settings.creative}, Expert=${settings.expert}, Memory=${settings.memory}
+${currentMode ? `Current Mode: ${currentMode}` : ''}`;
 
-                const data = await response.json();
-                return data.choices[0].message.content;
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: [
+                        {
+                            role: 'system',
+                            content: systemPrompt || basePrompt
+                        },
+                        ...(settings.memory ? conversation.slice(-10) : []),
+                        {
+                            role: 'user',
+                            content: message
+                        }
+                    ],
+                    max_tokens: 2000,
+                    temperature: settings.creative ? 0.9 : 0.7,
+                    top_p: 0.9,
+                    frequency_penalty: 0.1,
+                    presence_penalty: 0.1
+                })
+            });
 
-            } catch (error) {
-                console.error('API Call failed:', error);
-                throw error;
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || `HTTP ${response.status}`);
             }
+
+            const data = await response.json();
+            return data.choices[0].message.content;
         }
-        
+
         function activateFeature(feature, element) {
             const prompts = {
                 // Core Features
@@ -1369,7 +1331,7 @@
             };
 
             const prompt = prompts[feature] || `I'm activated in ${feature} mode! How can I help you?`;
-
+            
             // Visual feedback
             element.style.transform = 'scale(0.95)';
             setTimeout(() => {
@@ -1380,7 +1342,7 @@
             currentMode = feature.toUpperCase();
             switchTab('chat');
             showModeIndicator(feature);
-
+            
             // Add AI response
             setTimeout(() => {
                 addMessage('ai', `🎯 **${currentMode} MODE ACTIVATED**\n\n${prompt}`);
@@ -1455,7 +1417,7 @@
             const indicator = document.getElementById('typingIndicator');
             indicator.style.display = 'flex';
             document.getElementById('sendButton').disabled = true;
-
+            
             if (settings.scroll) {
                 setTimeout(() => {
                     const messages = document.getElementById('messages');
@@ -1495,32 +1457,32 @@
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 const recognition = new SpeechRecognition();
-
+                
                 recognition.continuous = false;
                 recognition.interimResults = false;
                 recognition.lang = 'en-US';
-
-                recognition.onstart = function () {
+                
+                recognition.onstart = function() {
                     document.getElementById('voiceFab').innerHTML = '🔴';
                     showNotification('🎤 Listening...');
                 };
-
-                recognition.onresult = function (event) {
+                
+                recognition.onresult = function(event) {
                     const transcript = event.results[0][0].transcript;
                     document.getElementById('messageInput').value = transcript;
                     document.getElementById('voiceFab').innerHTML = '🎤';
                     showNotification('Voice input received!');
                 };
-
-                recognition.onerror = function (event) {
+                
+                recognition.onerror = function(event) {
                     document.getElementById('voiceFab').innerHTML = '🎤';
                     showNotification('Voice recognition error');
                 };
-
-                recognition.onend = function () {
+                
+                recognition.onend = function() {
                     document.getElementById('voiceFab').innerHTML = '🎤';
                 };
-
+                
                 recognition.start();
             } else {
                 showNotification('Voice recognition not supported');
@@ -1540,11 +1502,11 @@
                     </div>
                 </div>
             `;
-
+            
             if (settings.save) {
                 localStorage.removeItem('zenith_conversation');
             }
-
+            
             clearMode();
             showNotification('New chat started!');
         }
@@ -1559,13 +1521,13 @@
             const messages = document.querySelectorAll('.message');
             let exportText = `Zenith AI Chat Export - ${new Date().toLocaleDateString()}\n`;
             exportText += '='.repeat(50) + '\n\n';
-
+            
             messages.forEach(message => {
                 const sender = message.classList.contains('user') ? 'You' : 'Zenith AI';
                 const content = message.querySelector('.message-bubble').textContent;
                 exportText += `${sender}: ${content}\n\n`;
             });
-
+            
             const blob = new Blob([exportText], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1575,7 +1537,7 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-
+            
             showNotification('Chat exported successfully!');
         }
 
@@ -1595,7 +1557,7 @@
                 sound: document.getElementById('soundToggle').classList.contains('active'),
                 save: document.getElementById('saveToggle').classList.contains('active')
             };
-
+            
             localStorage.setItem('zenith_settings', JSON.stringify(settings));
             showNotification('Settings updated!');
         }
@@ -1609,7 +1571,7 @@
                     console.warn('Failed to load settings:', e);
                 }
             }
-
+            
             // Apply settings to UI
             Object.keys(settings).forEach(key => {
                 const toggle = document.getElementById(key + 'Toggle');
@@ -1629,5 +1591,4 @@
         }
     </script>
 </body>
-
 </html>
